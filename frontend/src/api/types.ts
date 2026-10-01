@@ -55,17 +55,13 @@ export interface ImpactResult {
 }
 
 // What arrives over the /ws/graph-updates socket every reconciliation cycle.
+// Only nodes/edges that actually changed since the last tick are included -
+// a stable, healthy fleet produces empty arrays most ticks.
 export interface GraphDeltaMessage {
   type: 'graph_delta'
   timestamp: string
-  updated_nodes: { id: string; label: NodeLabel; health: HealthStatus; latency_ms: number }[]
-  updated_edges: {
-    from: string
-    to: string
-    rel_type: string
-    state?: string
-    confidence?: number
-    source_label?: string
-  }[]
+  updated_nodes: { id: string; label: NodeLabel; health: HealthStatus | null }[]
+  updated_edges: { from: string; to: string; rel_type: string }[]
+  removed_edges: { from: string; to: string; rel_type: string }[]
   new_incidents: { id: string; affects: string; started_at: string }[]
 }

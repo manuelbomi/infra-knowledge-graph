@@ -82,6 +82,9 @@ export default function App() {
             rel_type: update.rel_type as GraphEdge['rel_type'],
           })
         }
+        for (const removed of message.removed_edges) {
+          next.delete(edgeKey(removed.from, removed.to, removed.rel_type))
+        }
         for (const incident of message.new_incidents) {
           const key = edgeKey(incident.id, incident.affects, 'AFFECTS')
           next.set(key, { source: incident.id, target: incident.affects, rel_type: 'AFFECTS' })

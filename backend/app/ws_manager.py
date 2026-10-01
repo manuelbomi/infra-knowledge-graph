@@ -1,11 +1,6 @@
-"""
-Tracks connected WebSocket clients and broadcasts graph deltas to all of them.
+"""Tiny broadcast helper for the live graph-updates websocket - one list of connected clients, nothing fancier."""
 
-Deliberately simple (a list in process memory) because this app runs as a
-single process. Scaling this to multiple backend instances would need a
-pub/sub layer (Redis, NATS, etc.) so a delta produced on one instance reaches
-clients connected to another -- called out in the README.
-"""
+from __future__ import annotations
 
 import json
 import logging
@@ -28,14 +23,14 @@ class ConnectionManager:
             self._connections.remove(websocket)
 
     async def broadcast(self, message: dict) -> None:
-        payload = json.dumps(message)
-        dead_connections = []
+        payload = json.dumps(message, default=str)
+        dead = []
         for connection in self._connections:
             try:
                 await connection.send_text(payload)
-            except Exception:
-                dead_connections.append(connection)
-        for connection in dead_connections:
+            except Exception:  # noqa: BLE001 - a dead socket shouldn't break the others
+                dead.append(connection)
+        for connection in dead:
             self.disconnect(connection)
 
 

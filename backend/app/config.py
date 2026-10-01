@@ -25,7 +25,10 @@ class Settings(BaseSettings):
     staleness_ttl_seconds: float = 30.0
 
     class Config:
-        env_file = ".env"
+        # One .env file at the repo root, shared with docker-compose.yml
+        # (which reads the same file for NEO4J_PASSWORD) - no need to keep
+        # two copies in sync.
+        env_file = "../.env"
 
 
 settings = Settings()

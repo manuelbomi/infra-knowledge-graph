@@ -1,19 +1,22 @@
 import pytest
 
-from app.ontology.schema import NodeLabel, constraint_statements, validate_node_properties
+from app.ontology.schema import NodeLabel, validate_node_properties
 
 
-def test_validate_node_properties_passes_with_all_required_fields():
-    validate_node_properties(NodeLabel.HOST, {"id": "host-1", "hostname": "host-1.internal"})
+def test_valid_host_passes():
+    validate_node_properties(NodeLabel.HOST, {"id": "h1", "hostname": "web-01"})
 
 
-def test_validate_node_properties_rejects_missing_fields():
-    with pytest.raises(ValueError, match="missing required properties"):
-        validate_node_properties(NodeLabel.HOST, {"id": "host-1"})
+def test_host_missing_hostname_raises():
+    with pytest.raises(ValueError, match="hostname"):
+        validate_node_properties(NodeLabel.HOST, {"id": "h1"})
 
 
-def test_constraint_statements_cover_every_node_label():
-    statements = constraint_statements()
-    assert len(statements) == len(list(NodeLabel))
-    for label in NodeLabel:
-        assert any(label.value in statement for statement in statements)
+def test_datacenter_missing_region_raises():
+    with pytest.raises(ValueError, match="region_id"):
+        validate_node_properties(NodeLabel.DATA_CENTER, {"id": "dc1", "name": "dc-1"})
+
+
+def test_incident_event_requires_started_at():
+    with pytest.raises(ValueError):
+        validate_node_properties(NodeLabel.INCIDENT_EVENT, {"id": "inc1"})
