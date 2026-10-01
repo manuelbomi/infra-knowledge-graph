@@ -1,0 +1,26 @@
+# Runs Neo4j locally so the backend has a real graph database to write to.
+# Start this first: `docker compose up -d`, then run the backend, then the
+# frontend. See README.md for the full walkthrough.
+services:
+  neo4j:
+    image: neo4j:5.24-community
+    container_name: infra-knowledge-graph-neo4j
+    ports:
+      - "7474:7474" # Neo4j Browser (visit http://localhost:7474)
+      - "7687:7687" # Bolt protocol (what the backend connects to)
+    environment:
+      # Change this if you're running this anywhere other than your own
+      # laptop. It must match NEO4J_PASSWORD / neo4j_password in the backend
+      # config (see backend/.env.example).
+      NEO4J_AUTH: "neo4j/localdevpassword"
+      NEO4J_PLUGINS: '[]'
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-O", "/dev/null", "http://localhost:7474"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  neo4j_data:

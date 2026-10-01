@@ -1,0 +1,12 @@
+/* Minimal global reset -- all real layout and theming lives in App.css,
+   scoped to the dashboard shell. */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
